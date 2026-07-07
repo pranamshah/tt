@@ -1,10 +1,11 @@
 import { and, asc, desc, eq, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "./index";
-import { categories, tasks, timetableBlocks } from "./schema";
+import { categories, notes, tasks, timetableBlocks } from "./schema";
 
 export type CategoryRecord = typeof categories.$inferSelect;
 export type TaskRecord = typeof tasks.$inferSelect;
 export type TimetableBlockRecord = typeof timetableBlocks.$inferSelect;
+export type NoteRecord = typeof notes.$inferSelect;
 
 export async function getCategories(userId: string): Promise<CategoryRecord[]> {
   return db
@@ -85,6 +86,14 @@ export async function getAllTasks(userId: string): Promise<TaskRecord[]> {
       asc(tasks.dueTime),
       desc(tasks.createdAt),
     );
+}
+
+export async function getNotes(userId: string): Promise<NoteRecord[]> {
+  return db
+    .select()
+    .from(notes)
+    .where(eq(notes.userId, userId))
+    .orderBy(desc(notes.updatedAt));
 }
 
 export async function getTaskCompletionStats(
