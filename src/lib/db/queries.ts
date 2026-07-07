@@ -38,6 +38,22 @@ export async function getTodayTimetableBlocks(
     .orderBy(asc(timetableBlocks.startTime));
 }
 
+/** All recurring weekly blocks, across every day-of-week, for the timetable editor. */
+export async function getRecurringTimetableBlocks(
+  userId: string,
+): Promise<TimetableBlockRecord[]> {
+  return db
+    .select()
+    .from(timetableBlocks)
+    .where(
+      and(
+        eq(timetableBlocks.userId, userId),
+        eq(timetableBlocks.isRecurring, true),
+      ),
+    )
+    .orderBy(asc(timetableBlocks.dayOfWeek), asc(timetableBlocks.startTime));
+}
+
 /** Tasks due today or overdue, excluding completed and soft-deleted. */
 export async function getTodayAndOverdueTasks(
   userId: string,

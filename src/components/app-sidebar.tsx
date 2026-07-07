@@ -18,7 +18,7 @@ const NAV_ITEMS = [
     href: "/timetable",
     label: "Timetable",
     icon: CalendarDays,
-    enabled: false,
+    enabled: true,
   },
   { href: "/tasks", label: "Tasks", icon: CheckSquare, enabled: false },
   { href: "/notes", label: "Notes", icon: StickyNote, enabled: false },
