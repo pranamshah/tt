@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   },
   { href: "/tasks", label: "Tasks", icon: CheckSquare, enabled: true },
   { href: "/notes", label: "Notes", icon: StickyNote, enabled: true },
-  { href: "/habits", label: "Habits", icon: Flame, enabled: false },
+  { href: "/habits", label: "Habits", icon: Flame, enabled: true },
   { href: "/settings", label: "Settings", icon: Settings, enabled: false },
 ] as const;
 

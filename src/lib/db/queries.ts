@@ -1,11 +1,13 @@
-import { and, asc, desc, eq, isNull, lte, ne, or, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "./index";
-import { categories, notes, tasks, timetableBlocks } from "./schema";
+import { categories, habitLogs, habits, notes, tasks, timetableBlocks } from "./schema";
 
 export type CategoryRecord = typeof categories.$inferSelect;
 export type TaskRecord = typeof tasks.$inferSelect;
 export type TimetableBlockRecord = typeof timetableBlocks.$inferSelect;
 export type NoteRecord = typeof notes.$inferSelect;
+export type HabitRecord = typeof habits.$inferSelect;
+export type HabitLogRecord = typeof habitLogs.$inferSelect;
 
 export async function getCategories(userId: string): Promise<CategoryRecord[]> {
   return db
@@ -94,6 +96,34 @@ export async function getNotes(userId: string): Promise<NoteRecord[]> {
     .from(notes)
     .where(eq(notes.userId, userId))
     .orderBy(desc(notes.updatedAt));
+}
+
+export async function getHabits(userId: string): Promise<HabitRecord[]> {
+  return db
+    .select()
+    .from(habits)
+    .where(eq(habits.userId, userId))
+    .orderBy(asc(habits.createdAt));
+}
+
+/** Habit logs for this user's habits within [startDate, endDate] (inclusive, "yyyy-MM-dd"). */
+export async function getHabitLogsInRange(
+  userId: string,
+  startDate: string,
+  endDate: string,
+): Promise<HabitLogRecord[]> {
+  return db
+    .select({
+      id: habitLogs.id,
+      habitId: habitLogs.habitId,
+      logDate: habitLogs.logDate,
+      completed: habitLogs.completed,
+    })
+    .from(habitLogs)
+    .innerJoin(habits, eq(habitLogs.habitId, habits.id))
+    .where(
+      and(eq(habits.userId, userId), between(habitLogs.logDate, startDate, endDate)),
+    );
 }
 
 export async function getTaskCompletionStats(
