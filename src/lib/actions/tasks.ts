@@ -62,6 +62,7 @@ export async function quickAddTask(rawInput: string) {
   }
 
   revalidatePath("/today");
+  revalidatePath("/tasks");
 }
 
 export async function setTaskStatus(taskId: string, done: boolean) {
@@ -74,6 +75,17 @@ export async function setTaskStatus(taskId: string, done: boolean) {
     .where(eq(tasks.id, taskId));
 
   revalidatePath("/today");
+  revalidatePath("/tasks");
+}
+
+export async function deleteTask(taskId: string) {
+  await db
+    .update(tasks)
+    .set({ deletedAt: new Date() })
+    .where(eq(tasks.id, taskId));
+
+  revalidatePath("/today");
+  revalidatePath("/tasks");
 }
 
 export async function snoozeTaskToTomorrow(taskId: string) {
@@ -85,4 +97,5 @@ export async function snoozeTaskToTomorrow(taskId: string) {
     .where(eq(tasks.id, taskId));
 
   revalidatePath("/today");
+  revalidatePath("/tasks");
 }

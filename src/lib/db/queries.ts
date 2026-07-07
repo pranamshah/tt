@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull, lte, ne, or } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "./index";
 import { categories, tasks, timetableBlocks } from "./schema";
 
@@ -71,6 +71,20 @@ export async function getTodayAndOverdueTasks(
       ),
     )
     .orderBy(asc(tasks.dueDate), asc(tasks.dueTime));
+}
+
+/** Every non-deleted task, active ones first (by due date), completed ones last (most recent first). */
+export async function getAllTasks(userId: string): Promise<TaskRecord[]> {
+  return db
+    .select()
+    .from(tasks)
+    .where(and(eq(tasks.userId, userId), isNull(tasks.deletedAt)))
+    .orderBy(
+      sql`(${tasks.status} = 'done')`,
+      asc(tasks.dueDate),
+      asc(tasks.dueTime),
+      desc(tasks.createdAt),
+    );
 }
 
 export async function getTaskCompletionStats(

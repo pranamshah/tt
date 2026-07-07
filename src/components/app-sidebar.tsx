@@ -20,7 +20,7 @@ const NAV_ITEMS = [
     icon: CalendarDays,
     enabled: true,
   },
-  { href: "/tasks", label: "Tasks", icon: CheckSquare, enabled: false },
+  { href: "/tasks", label: "Tasks", icon: CheckSquare, enabled: true },
   { href: "/notes", label: "Notes", icon: StickyNote, enabled: false },
   { href: "/habits", label: "Habits", icon: Flame, enabled: false },
   { href: "/settings", label: "Settings", icon: Settings, enabled: false },

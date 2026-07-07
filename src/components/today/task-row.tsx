@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Clock } from "lucide-react";
+import { Clock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { setTaskStatus, snoozeTaskToTomorrow } from "@/lib/actions/tasks";
+import { deleteTask, setTaskStatus, snoozeTaskToTomorrow } from "@/lib/actions/tasks";
 import type { TaskRecord } from "@/lib/db/queries";
 
 export function TaskRow({
@@ -30,6 +30,13 @@ export function TaskRow({
     startTransition(async () => {
       await snoozeTaskToTomorrow(task.id);
       toast.success("Moved to tomorrow");
+    });
+  }
+
+  function handleDelete() {
+    startTransition(async () => {
+      await deleteTask(task.id);
+      toast.success("Task deleted");
     });
   }
 
@@ -74,6 +81,16 @@ export function TaskRow({
         aria-label={`Snooze "${task.title}" to tomorrow`}
       >
         <Clock className="size-3.5" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-7 opacity-0 text-destructive hover:text-destructive focus-visible:opacity-100 group-hover:opacity-100"
+        onClick={handleDelete}
+        aria-label={`Delete "${task.title}"`}
+      >
+        <Trash2 className="size-3.5" />
       </Button>
     </li>
   );

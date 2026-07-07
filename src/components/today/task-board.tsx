@@ -8,17 +8,19 @@ export function TaskBoard({
   tasks,
   categories,
   todayDate,
+  emptyMessage = "Nothing due today. Use quick-add above to plan your day.",
 }: {
   tasks: TaskRecord[];
   categories: CategoryRecord[];
   todayDate: string;
+  emptyMessage?: string;
 }) {
   if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-outline-variant/60 bg-card p-10 text-center">
         <ClipboardCheck className="size-8 text-on-surface-variant/50" aria-hidden />
         <p className="font-body text-sm text-on-surface-variant">
-          Nothing due today. Use quick-add above to plan your day.
+          {emptyMessage}
         </p>
       </div>
     );
