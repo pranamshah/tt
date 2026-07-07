@@ -27,10 +27,19 @@ export const getDefaultUserId = cache(async (): Promise<string> => {
     return existing[0].id;
   }
 
-  const [created] = await db
+  const inserted = await db
     .insert(users)
     .values({ email: DEFAULT_USER_EMAIL })
+    .onConflictDoNothing({ target: users.email })
     .returning({ id: users.id });
+
+  if (inserted.length === 0) {
+    // Lost the race to a concurrent request that inserted the user first.
+    const [winner] = await db.select({ id: users.id }).from(users).limit(1);
+    return winner.id;
+  }
+
+  const created = inserted[0];
 
   await db.insert(categories).values(
     DEFAULT_CATEGORIES.map((category) => ({
