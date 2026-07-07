@@ -1,6 +1,14 @@
 import { and, asc, between, desc, eq, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { db } from "./index";
-import { categories, habitLogs, habits, notes, tasks, timetableBlocks } from "./schema";
+import {
+  categories,
+  habitLogs,
+  habits,
+  notes,
+  tasks,
+  timetableBlocks,
+  userSettings,
+} from "./schema";
 
 export type CategoryRecord = typeof categories.$inferSelect;
 export type TaskRecord = typeof tasks.$inferSelect;
@@ -8,6 +16,7 @@ export type TimetableBlockRecord = typeof timetableBlocks.$inferSelect;
 export type NoteRecord = typeof notes.$inferSelect;
 export type HabitRecord = typeof habits.$inferSelect;
 export type HabitLogRecord = typeof habitLogs.$inferSelect;
+export type UserSettingsRecord = typeof userSettings.$inferSelect;
 
 export async function getCategories(userId: string): Promise<CategoryRecord[]> {
   return db
@@ -124,6 +133,23 @@ export async function getHabitLogsInRange(
     .where(
       and(eq(habits.userId, userId), between(habitLogs.logDate, startDate, endDate)),
     );
+}
+
+/** Falls back to defaults when no row exists yet (row is created on first save). */
+export async function getUserSettings(userId: string): Promise<UserSettingsRecord> {
+  const [row] = await db
+    .select()
+    .from(userSettings)
+    .where(eq(userSettings.userId, userId));
+
+  return (
+    row ?? {
+      userId,
+      theme: "system",
+      weekStartDay: 1,
+      notificationsEnabled: true,
+    }
+  );
 }
 
 export async function getTaskCompletionStats(
