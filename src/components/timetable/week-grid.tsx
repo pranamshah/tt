@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarPlus, Plus } from "lucide-react";
+import { CalendarPlus, Flame, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BlockDialog } from "@/components/timetable/block-dialog";
 import { cn } from "@/lib/utils";
-import type { CategoryRecord, TimetableBlockRecord } from "@/lib/db/queries";
+import type { CategoryRecord, HabitRecord, TimetableBlockRecord } from "@/lib/db/queries";
 
 const DAYS = [
   { dayOfWeek: 1, label: "Monday", short: "Mon" },
@@ -28,9 +28,11 @@ function formatDisplayTime(time: string) {
 export function WeekGrid({
   blocks,
   categories,
+  habits,
 }: {
   blocks: TimetableBlockRecord[];
   categories: CategoryRecord[];
+  habits: HabitRecord[];
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBlock, setEditingBlock] = useState<TimetableBlockRecord | null>(null);
@@ -43,6 +45,15 @@ export function WeekGrid({
     const list = blocksByDay.get(block.dayOfWeek) ?? [];
     list.push(block);
     blocksByDay.set(block.dayOfWeek, list);
+  }
+
+  const habitsByDay = new Map<number, HabitRecord[]>();
+  for (const habit of habits) {
+    for (const day of habit.targetDays) {
+      const list = habitsByDay.get(day) ?? [];
+      list.push(habit);
+      habitsByDay.set(day, list);
+    }
   }
 
   function openCreate(dayOfWeek: number) {
@@ -64,6 +75,9 @@ export function WeekGrid({
           const dayBlocks = (blocksByDay.get(day.dayOfWeek) ?? []).sort((a, b) =>
             a.startTime.localeCompare(b.startTime),
           );
+          const dayHabits = (habitsByDay.get(day.dayOfWeek) ?? []).sort((a, b) =>
+            (a.scheduledTime ?? "").localeCompare(b.scheduledTime ?? ""),
+          );
 
           return (
             <div
@@ -84,6 +98,25 @@ export function WeekGrid({
                   <Plus className="size-3.5" />
                 </Button>
               </div>
+
+              {dayHabits.length > 0 && (
+                <div className="flex flex-wrap gap-1 border-b border-outline-variant/20 px-2 pt-2 pb-1">
+                  {dayHabits.map((habit) => (
+                    <span
+                      key={habit.id}
+                      className="flex items-center gap-1 rounded-full bg-secondary/60 px-2 py-0.5 font-mono text-[10px] text-secondary-foreground"
+                    >
+                      <Flame className="size-2.5" aria-hidden />
+                      {habit.title}
+                      {habit.scheduledTime && (
+                        <span className="text-secondary-foreground/70">
+                          {formatDisplayTime(habit.scheduledTime)}
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="flex flex-1 flex-col gap-2 p-2">
                 {dayBlocks.length === 0 ? (

@@ -63,16 +63,23 @@ export function NotesList({
                   borderTopWidth: 3,
                 }}
               >
-                <h3 className="font-heading text-base font-semibold text-on-surface">
-                  {note.title}
-                </h3>
+                <div className="flex w-full items-start justify-between gap-2">
+                  <h3 className="font-heading text-base font-semibold text-on-surface">
+                    {note.title}
+                  </h3>
+                  {note.linkedDate && (
+                    <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] text-secondary-foreground">
+                      {format(new Date(`${note.linkedDate}T00:00:00`), "MMM d")}
+                    </span>
+                  )}
+                </div>
                 {note.content && (
                   <p className="line-clamp-4 font-body text-sm whitespace-pre-wrap text-on-surface-variant">
                     {note.content}
                   </p>
                 )}
                 <span className="mt-auto pt-2 font-mono text-[10px] text-on-surface-variant/60">
-                  {format(new Date(note.updatedAt), "MMM d, yyyy")}
+                  Updated {format(new Date(note.updatedAt), "MMM d, yyyy")}
                 </span>
               </button>
             );

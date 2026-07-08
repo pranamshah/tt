@@ -178,6 +178,7 @@ export const habits = pgTable("habits", {
   }),
   title: text("title").notNull(),
   targetDays: integer("target_days").array().notNull().default([]),
+  scheduledTime: time("scheduled_time"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

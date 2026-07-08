@@ -48,6 +48,7 @@ export function HabitDialog({
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState(NO_CATEGORY);
   const [targetDays, setTargetDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
+  const [scheduledTime, setScheduledTime] = useState("");
 
   function toggleDay(day: number) {
     setTargetDays((prev) =>
@@ -59,6 +60,7 @@ export function HabitDialog({
     setTitle("");
     setCategoryId(NO_CATEGORY);
     setTargetDays([0, 1, 2, 3, 4, 5, 6]);
+    setScheduledTime("");
   }
 
   function handleOpenChange(next: boolean) {
@@ -76,6 +78,7 @@ export function HabitDialog({
         title: trimmedTitle,
         categoryId: categoryId === NO_CATEGORY ? null : categoryId,
         targetDays,
+        scheduledTime: scheduledTime || null,
       });
       toast.success("Habit added");
       resetForm();
@@ -100,6 +103,16 @@ export function HabitDialog({
               placeholder="e.g. Read for 20 minutes"
               autoFocus
               required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="habit-time">Time (optional)</Label>
+            <Input
+              id="habit-time"
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
             />
           </div>
 

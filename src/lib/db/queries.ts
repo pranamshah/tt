@@ -107,11 +107,32 @@ export async function getNotes(userId: string): Promise<NoteRecord[]> {
     .orderBy(desc(notes.updatedAt));
 }
 
+/** Notes linked to a specific calendar date ("yyyy-MM-dd"). */
+export async function getNotesForDate(userId: string, date: string): Promise<NoteRecord[]> {
+  return db
+    .select()
+    .from(notes)
+    .where(and(eq(notes.userId, userId), eq(notes.linkedDate, date)))
+    .orderBy(desc(notes.updatedAt));
+}
+
 export async function getHabits(userId: string): Promise<HabitRecord[]> {
   return db
     .select()
     .from(habits)
     .where(eq(habits.userId, userId))
+    .orderBy(asc(habits.createdAt));
+}
+
+/** Habits targeted for a given day of week (0=Sun..6=Sat). */
+export async function getHabitsForDayOfWeek(
+  userId: string,
+  dayOfWeek: number,
+): Promise<HabitRecord[]> {
+  return db
+    .select()
+    .from(habits)
+    .where(and(eq(habits.userId, userId), sql`${dayOfWeek} = ANY(${habits.targetDays})`))
     .orderBy(asc(habits.createdAt));
 }
 

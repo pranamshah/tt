@@ -10,6 +10,7 @@ export type NoteInput = {
   title: string;
   content: string | null;
   categoryId: string | null;
+  linkedDate: string | null;
 };
 
 export async function createNote(input: NoteInput) {
@@ -20,9 +21,11 @@ export async function createNote(input: NoteInput) {
     title: input.title,
     content: input.content,
     categoryId: input.categoryId,
+    linkedDate: input.linkedDate,
   });
 
   revalidatePath("/notes");
+  revalidatePath("/today");
 }
 
 export async function updateNote(noteId: string, input: NoteInput) {
@@ -32,14 +35,17 @@ export async function updateNote(noteId: string, input: NoteInput) {
       title: input.title,
       content: input.content,
       categoryId: input.categoryId,
+      linkedDate: input.linkedDate,
       updatedAt: new Date(),
     })
     .where(eq(notes.id, noteId));
 
   revalidatePath("/notes");
+  revalidatePath("/today");
 }
 
 export async function deleteNote(noteId: string) {
   await db.delete(notes).where(eq(notes.id, noteId));
   revalidatePath("/notes");
+  revalidatePath("/today");
 }

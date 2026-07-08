@@ -2,6 +2,9 @@ import { format } from "date-fns";
 import { getDefaultUserId } from "@/lib/db/default-user";
 import {
   getCategories,
+  getHabitLogsInRange,
+  getHabitsForDayOfWeek,
+  getNotesForDate,
   getTaskCompletionStats,
   getTodayAndOverdueTasks,
   getTodayTimetableBlocks,
@@ -10,6 +13,8 @@ import { QuickAddBar } from "@/components/today/quick-add-bar";
 import { ProgressRing } from "@/components/today/progress-ring";
 import { Timeline } from "@/components/today/timeline";
 import { TaskBoard } from "@/components/today/task-board";
+import { TodayHabits } from "@/components/today/today-habits";
+import { TodayNotes } from "@/components/today/today-notes";
 
 // Task/timetable data changes on every request — never prerender this page.
 export const dynamic = "force-dynamic";
@@ -20,12 +25,18 @@ export default async function TodayPage() {
   const todayDate = format(now, "yyyy-MM-dd");
   const todayDayOfWeek = now.getDay();
 
-  const [categories, blocks, tasks, stats] = await Promise.all([
-    getCategories(userId),
-    getTodayTimetableBlocks(userId, todayDayOfWeek, todayDate),
-    getTodayAndOverdueTasks(userId, todayDate),
-    getTaskCompletionStats(userId, todayDate),
-  ]);
+  const [categories, blocks, tasks, stats, habitsToday, habitLogsToday, notesToday] =
+    await Promise.all([
+      getCategories(userId),
+      getTodayTimetableBlocks(userId, todayDayOfWeek, todayDate),
+      getTodayAndOverdueTasks(userId, todayDate),
+      getTaskCompletionStats(userId, todayDate),
+      getHabitsForDayOfWeek(userId, todayDayOfWeek),
+      getHabitLogsInRange(userId, todayDate, todayDate),
+      getNotesForDate(userId, todayDate),
+    ]);
+
+  const untimedHabitsToday = habitsToday.filter((h) => !h.scheduledTime);
 
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-6">
@@ -46,11 +57,24 @@ export default async function TodayPage() {
       </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-5 xl:col-span-4">
-          <Timeline blocks={blocks} categories={categories} />
+        <div className="flex flex-col gap-6 lg:col-span-5 xl:col-span-4">
+          <Timeline
+            blocks={blocks}
+            categories={categories}
+            habits={habitsToday}
+            habitLogs={habitLogsToday}
+            todayDate={todayDate}
+          />
+          <TodayHabits
+            habits={untimedHabitsToday}
+            logs={habitLogsToday}
+            todayDate={todayDate}
+            categories={categories}
+          />
         </div>
-        <div className="lg:col-span-7 xl:col-span-8">
+        <div className="flex flex-col gap-6 lg:col-span-7 xl:col-span-8">
           <TaskBoard tasks={tasks} categories={categories} todayDate={todayDate} />
+          <TodayNotes notes={notesToday} categories={categories} todayDate={todayDate} />
         </div>
       </div>
     </div>

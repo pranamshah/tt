@@ -11,6 +11,14 @@ import type { CategoryRecord, HabitLogRecord, HabitRecord } from "@/lib/db/queri
 
 export type WeekDay = { date: string; dayOfWeek: number; label: string };
 
+function formatDisplayTime(time: string) {
+  const [hoursStr, minutes] = time.split(":");
+  const hours = Number(hoursStr);
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+  return `${displayHours}:${minutes} ${period}`;
+}
+
 export function HabitsList({
   habits,
   logs,
@@ -95,6 +103,11 @@ export function HabitsList({
                     <span className="truncate font-body text-sm text-on-surface">
                       {habit.title}
                     </span>
+                    {habit.scheduledTime && (
+                      <span className="shrink-0 font-mono text-[10px] text-on-surface-variant">
+                        {formatDisplayTime(habit.scheduledTime)}
+                      </span>
+                    )}
                   </div>
 
                   {weekDays.map((day) => {

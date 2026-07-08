@@ -10,6 +10,7 @@ export type HabitInput = {
   title: string;
   categoryId: string | null;
   targetDays: number[];
+  scheduledTime: string | null;
 };
 
 export async function createHabit(input: HabitInput) {
@@ -20,14 +21,19 @@ export async function createHabit(input: HabitInput) {
     title: input.title,
     categoryId: input.categoryId,
     targetDays: input.targetDays,
+    scheduledTime: input.scheduledTime,
   });
 
   revalidatePath("/habits");
+  revalidatePath("/today");
+  revalidatePath("/timetable");
 }
 
 export async function deleteHabit(habitId: string) {
   await db.delete(habits).where(eq(habits.id, habitId));
   revalidatePath("/habits");
+  revalidatePath("/today");
+  revalidatePath("/timetable");
 }
 
 export async function setHabitLog(
@@ -44,4 +50,5 @@ export async function setHabitLog(
     });
 
   revalidatePath("/habits");
+  revalidatePath("/today");
 }

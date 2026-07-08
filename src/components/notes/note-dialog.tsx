@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,11 +31,13 @@ export function NoteDialog({
   onOpenChange,
   categories,
   note,
+  defaultLinkedDate,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categories: CategoryRecord[];
   note: NoteRecord | null;
+  defaultLinkedDate?: string;
 }) {
   const isEditing = note !== null;
   const [isPending, startTransition] = useTransition();
@@ -42,6 +45,9 @@ export function NoteDialog({
   const [title, setTitle] = useState(note?.title ?? "");
   const [content, setContent] = useState(note?.content ?? "");
   const [categoryId, setCategoryId] = useState(note?.categoryId ?? NO_CATEGORY);
+  const [linkedDate, setLinkedDate] = useState(
+    note?.linkedDate ?? defaultLinkedDate ?? format(new Date(), "yyyy-MM-dd"),
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,6 +58,7 @@ export function NoteDialog({
       title: trimmedTitle,
       content: content.trim() || null,
       categoryId: categoryId === NO_CATEGORY ? null : categoryId,
+      linkedDate: linkedDate || null,
     };
 
     startTransition(async () => {
@@ -64,6 +71,7 @@ export function NoteDialog({
         setTitle("");
         setContent("");
         setCategoryId(NO_CATEGORY);
+        setLinkedDate(defaultLinkedDate ?? format(new Date(), "yyyy-MM-dd"));
       }
       onOpenChange(false);
     });
@@ -106,6 +114,16 @@ export function NoteDialog({
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write something..."
               rows={6}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="note-date">Date</Label>
+            <Input
+              id="note-date"
+              type="date"
+              value={linkedDate}
+              onChange={(e) => setLinkedDate(e.target.value)}
             />
           </div>
 

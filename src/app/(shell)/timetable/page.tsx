@@ -1,5 +1,5 @@
 import { getDefaultUserId } from "@/lib/db/default-user";
-import { getCategories, getRecurringTimetableBlocks } from "@/lib/db/queries";
+import { getCategories, getHabits, getRecurringTimetableBlocks } from "@/lib/db/queries";
 import { WeekGrid } from "@/components/timetable/week-grid";
 
 // Timetable blocks change on every request — never prerender this page.
@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 export default async function TimetablePage() {
   const userId = await getDefaultUserId();
 
-  const [categories, blocks] = await Promise.all([
+  const [categories, blocks, habits] = await Promise.all([
     getCategories(userId),
     getRecurringTimetableBlocks(userId),
+    getHabits(userId),
   ]);
 
   return (
@@ -21,11 +22,11 @@ export default async function TimetablePage() {
         </h2>
         <p className="font-body text-sm text-on-surface-variant md:text-base">
           Your recurring weekly schedule. Click a day&apos;s + to add a block, or an
-          existing block to edit it.
+          existing block to edit it. Habits scheduled for a day show up automatically.
         </p>
       </div>
 
-      <WeekGrid blocks={blocks} categories={categories} />
+      <WeekGrid blocks={blocks} categories={categories} habits={habits} />
     </div>
   );
 }
